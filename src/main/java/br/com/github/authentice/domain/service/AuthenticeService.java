@@ -1,8 +1,5 @@
 package br.com.github.authentice.domain.service;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +11,8 @@ import br.com.github.authentice.domain.exception.userException.TokenExpiradoExce
 import br.com.github.authentice.domain.exception.userException.TokenInvalidoException;
 import br.com.github.authentice.domain.exception.userException.UserBlockedException;
 import br.com.github.authentice.domain.model.TokenJwt;
-import br.com.github.authentice.domain.model.User;
+import br.com.github.authentice.domain.model.UserSystem;
+import br.com.github.authentice.domain.utils.CryptUtil;
 import io.jsonwebtoken.Claims;
 
 @Service
@@ -24,48 +22,57 @@ public class AuthenticeService {
 
 	private static final Integer ONE_TRY = 1;
 
+	private static final Integer MAX_ERROR = 3;
+
+	private static final String IMCOMPLET = "Dados incompletos";
+
 	@Autowired
 	private TokenService tokenService;
-	
+
 	@Autowired
 	private UserService userService;
 
-
 	public TokenJwt authentice(UserRequestDTO request) {
 
-		System.out.println("DADOS LOGIN : " + request.getEmail() + " | " + request.getPassword());
+		firstValidation(request);
 
 		var token = new TokenJwt();
 		token.setType(BEARER);
 
-		User user = userService.findByUserEmail(request.getEmail().trim());
-		
-		try {
-			if (user != null && !user.isBlocked()) {
-				if (authorize(getHashMd5(request.getPassword()),user.getPassword())) {
-					token.setToken(tokenService.generateToken(user));
-				} else {
-					user.setPasswordError(user.getPasswordError()+ONE_TRY);
+		UserSystem user = userService.findByEmail(request.getEmail());
 
-					if(user.getPasswordError().equals(3)) {
-						user.setBlocked("S");
-					}
-					
-					userService.update(user);
-					
-					throw new LoginInvalidoException();
-				}
-			} else if(user.isBlocked()) {
-				throw new UserBlockedException();
-			}
-		} catch (Exception e) {
+		boolean passwordOk = CryptUtil.pswOk(request.getPassword(), user.getPassword());
+
+		if (user.isBlocked()) {
+			throw new UserBlockedException();
 		}
 
+		if (passwordOk) {
+			token.setToken(tokenService.generateToken(user.getUsername()));
+		} else {
+			user.setPasswordError(user.getPasswordError() + ONE_TRY);
+
+			if (maxErrorPassword(user)) {
+				blockedUser(user);
+			}
+			throw new LoginInvalidoException();
+		}
 		return token;
 	}
 
-	private boolean authorize(String request, String passwordBd) {
-		return request.equals(passwordBd);
+	private void blockedUser(UserSystem user) {
+		user.setBlocked("S");
+		userService.update(user);
+	}
+
+	private void firstValidation(UserRequestDTO request) {
+		if (request.getEmail().equals("") || !request.getEmail().contains("@") || request.getPassword().equals("")) {
+			throw new LoginInvalidoException(IMCOMPLET);
+		}
+	}
+
+	private boolean maxErrorPassword(UserSystem user) {
+		return user.getPasswordError().equals(MAX_ERROR);
 	}
 
 	public boolean validaToken(String token) {
@@ -84,16 +91,4 @@ public class AuthenticeService {
 			throw new TokenInvalidoException();
 		}
 	}
-	
-	public static String getHashMd5(String value) {
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        BigInteger hash = new BigInteger(1, md.digest(value.trim().getBytes()));
-        return hash.toString(16);
-    }
-
 }

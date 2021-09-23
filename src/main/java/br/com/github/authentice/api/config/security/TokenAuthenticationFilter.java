@@ -7,24 +7,25 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import br.com.github.authentice.domain.model.User;
+import br.com.github.authentice.domain.model.UserSystem;
 import br.com.github.authentice.domain.service.TokenService;
+import br.com.github.authentice.domain.service.UserService;
 import io.jsonwebtoken.Jwts;
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
 	static final String SECRET = "MySecret";
 
-	private final TokenService tokenService;
+	@Autowired
+	private TokenService tokenService;
 
-	public TokenAuthenticationFilter() {
-		super();
-		this.tokenService = new TokenService();
-	}
+	@Autowired
+	private UserService userService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -32,11 +33,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
 		String tokenFromHeader = getTokenFromHeader(request);
 		boolean tokenValid = isTokenValid(tokenFromHeader);
-		if(tokenValid) {
+		if (tokenValid) {
 			this.authenticate(tokenFromHeader);
 		}
-
-
 		filterChain.doFilter(request, response);
 	}
 
@@ -50,31 +49,24 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	private void authenticate(String tokenFromHeader) {
-		String id = tokenService.getTokenId(tokenFromHeader);
+		String email = tokenService.getTokenId(tokenFromHeader);
 
-		User user = new User();
+		UserSystem user = userService.findByEmail(email);
 
-		user.setEmail("08912129902");
-		user.setPassword("123");
-
-		//esse cliente vai vim do banco de dados..
-
-		if(user != null) {
-
-
-			UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+		if (user != null) {
+			UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+					user, null, user.getAuthorities());
 			SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 		}
 	}
 
 	private String getTokenFromHeader(HttpServletRequest request) {
 		String token = request.getHeader("Authorization");
-		if(token == null || token.isEmpty() || !token.startsWith("Bearer ")) {
+		if (token == null || token.isEmpty() || !token.startsWith("Bearer ")) {
 			return null;
 		}
 
 		return token.substring(7, token.length());
 	}
-
 
 }

@@ -19,9 +19,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/v1/authentice/login").permitAll()
 				.antMatchers(HttpMethod.GET, "/home_com_token").hasAnyRole("ADMIN", "USER")
-//		.antMatchers(HttpMethod.GET,"/home_com_token").permitAll()
-				.anyRequest().authenticated().and().csrf().disable().sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+				.antMatchers(HttpMethod.GET, "/home_sem_token").permitAll()
+				.anyRequest().authenticated().and().csrf()
+				.disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 				.addFilterBefore(new TokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 		;
 	}
@@ -35,6 +35,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication().withUser("admin").password("admin").authorities("SWAGGER");
 	}
+
 }

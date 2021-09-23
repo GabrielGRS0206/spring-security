@@ -22,7 +22,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import br.com.github.authentice.domain.exception.negocio.NegocioException;
 import br.com.github.authentice.domain.exception.userException.DtoInvalidoException;
-import br.com.github.authentice.domain.exception.userException.TokenInvalidoException;
 
 @ControllerAdvice
 public class JwtExceptionHandler extends ResponseEntityExceptionHandler {

@@ -8,9 +8,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 
 @Entity
-public class Permissao implements Serializable {
+@Table(name = "permission")
+public class Permission implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -20,8 +22,8 @@ public class Permissao implements Serializable {
 
 	private String nome;
 
-	@ManyToMany(mappedBy = "permissoes")
-	private List<User> users;
+	@ManyToMany(mappedBy = "permission")
+	private List<UserSystem> users;
 
 	public Long getId() {
 		return id;
@@ -39,11 +41,11 @@ public class Permissao implements Serializable {
 		this.nome = nome;
 	}
 
-	public List<User> getUsers() {
+	public List<UserSystem> getUsers() {
 		return users;
 	}
 
-	public void setUsers(List<User> users) {
+	public void setUsers(List<UserSystem> users) {
 		this.users = users;
 	}
 }

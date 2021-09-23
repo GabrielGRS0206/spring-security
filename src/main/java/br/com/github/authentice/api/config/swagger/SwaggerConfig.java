@@ -19,7 +19,7 @@ public class SwaggerConfig {
 	public Docket docket() {
 		return new Docket(DocumentationType.SWAGGER_2)
 				.select()
-				.apis(RequestHandlerSelectors.basePackage("com.io.github.jwt.api.controller"))
+				.apis(RequestHandlerSelectors.basePackage("br.com.github.authentice.api.controller"))
 				.build()
 				.apiInfo(getApiInfo());
 	}
@@ -34,7 +34,7 @@ public class SwaggerConfig {
 	}
 
 	public Contact getContact() {
-		return new Contact("Gabriel Rocha Severino", "https://github.com/GabrielGRS0206/SpringJwt", "gabrielrocha0206@gmail.com");
+		return new Contact("Gabriel Rocha Severino", "https://github.com/GabrielGRS0206/spring-security-rest", "gabrielrocha0206@gmail.com");
 	}
 
 }

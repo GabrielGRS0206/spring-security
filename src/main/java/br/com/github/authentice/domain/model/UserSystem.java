@@ -12,13 +12,14 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
-@Table(name = "user")
-public class User implements UserDetails {
+@Table(name = "user_user")
+public class UserSystem implements UserDetails {
 
 	/**
 	 * 
@@ -36,11 +37,11 @@ public class User implements UserDetails {
 
 	@Column(length = 1)
 	private String blocked;
-	
+
 	private Integer passwordError;
-	
+
 	@ManyToMany(fetch = FetchType.EAGER)
-	private List<Permissao> permissoes;
+	private List<Permission> permission;
 
 	public Long getId() {
 		return id;
@@ -59,7 +60,14 @@ public class User implements UserDetails {
 	}
 
 	public boolean isBlocked() {
-		return blocked.equals("S");
+		return blocked();
+	}
+
+	private boolean blocked() {
+		if (!Strings.isEmpty(blocked) && blocked.equals("S")) {
+			return true;
+		}
+		return false;
 	}
 
 	public String getBlocked() {
@@ -76,17 +84,10 @@ public class User implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-//		 Collection<GrantedAuthority> auths = new ArrayList<>();
-//		
-//		 for (Grupo grupo: grupos) {
-//		 List<Permissao> lista = permissoes.findByGruposIn(grupo);
-//		
-//		 for (Permissao permissao: lista) {
-//		 auths.add(new SimpleGrantedAuthority("ROLE_" + permissao.getNome()));
-//		 }
-//		 }
 		Collection<GrantedAuthority> auths = new ArrayList<>();
-		auths.add(new SimpleGrantedAuthority("ROLE_USER"));
+
+		auths.add(new SimpleGrantedAuthority("ROLE_" + "USER"));
+
 		return auths;
 	}
 
@@ -97,32 +98,27 @@ public class User implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		// TODO Auto-generated method stub
 		return email;
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 
 	public Integer getPasswordError() {

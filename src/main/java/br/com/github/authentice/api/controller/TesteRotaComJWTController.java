@@ -5,14 +5,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.github.authentice.domain.model.User;
+import br.com.github.authentice.domain.model.UserSystem;
 
 @RestController
 @RequestMapping("/home_com_token")
 public class TesteRotaComJWTController {
 
 	@GetMapping 
-	public String getUsers(@AuthenticationPrincipal User cliente) {
+	public String getUsers(@AuthenticationPrincipal UserSystem cliente) {
 		System.out.println("CHAMOU ROTA COM TOKEN..");
 		
 		System.out.println("USUARIO : "+cliente.getUsername());
@@ -20,7 +20,7 @@ public class TesteRotaComJWTController {
 	}
 	
 	@GetMapping("/consultar")
-	public String testeRota(@AuthenticationPrincipal User cliente) {
+	public String testeRota(@AuthenticationPrincipal UserSystem cliente) {
 		System.out.println("CHAMOU ROTA COM TOKEN..");
 		
 		System.out.println("USUARIO : "+cliente.getUsername());

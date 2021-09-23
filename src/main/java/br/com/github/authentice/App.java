@@ -8,7 +8,7 @@ public class App {
 
 	public static void main(String[] args) {
 		SpringApplication.run(App.class, args);
-		System.out.println("SPRING INICIADO..");
+		System.out.println("Spring..");
 	}
 
 }
